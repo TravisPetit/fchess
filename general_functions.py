@@ -28,7 +28,6 @@ def empty_board_moves(piece):
         return set(filter(lambda t : abs(t[0][0] - t[1][0]) <= 1 and abs(t[0][1] - t[1][1]) <= 1, sc.moves))
     if x == "P":
         return set(filter(lambda t : t[1][1] == t[0][1] + c, empty_board_moves((c,"R")))).union(pawn_advances_two_squares(c))
-    print("Error on empty_board_set method")
 
 
 def empty_board_attacks(piece):
