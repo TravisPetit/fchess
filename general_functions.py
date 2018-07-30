@@ -100,7 +100,7 @@ def do_move(pos, move):
     o = move[0]
     d = move[1]
 
-    # pisition function, meaning p: squares -> squarevalues
+    # position function, meaning p: squares -> squarevalues
     def p(square):
         if square == o:
             return "empty"
@@ -275,6 +275,42 @@ def valid_moves(*games):
     return king_not_attacked(c_(len(games)), set1)
 
 
+def valid_en_passant(pos, old_pos, col):
+    """ position x position x color -> IP(moves) """
+    def temp(t):
+        f1 = t[0][0]
+        r1 = t[0][1]
+        f2 = t[1][0]
+        r2 = t[1][1]
+        return pos((f1,r1)) == (col, "P") and pos((f2,r1)) == (-col, "P") \
+        and function_equality( do_move( old_pos, ((f2, int(r2)+col), (f2, r1))), pos)
+    return set(filter(temp, empty_board_attacks((col, "P"))))
+
+
+def do_en_passant(pos, move):
+    """ position x move -> position """
+    f1 = move[0][0]
+    r1 = move[0][1]
+    f2 = move[1][0]
+    r2 = move[1][1]
+    def temp(sq):
+        if sq == (f1,r1) or sq == (f2,r1):
+            return "empty"
+        if sq == (f2,r2):
+            return pos((f1,r1))
+        return pos(sq)
+    return temp
+
+
+
+def function_equality(pos1,pos2):
+    """ helper function for valid_en_passant """
+    for o in sc.squares:
+        for d in sc.squares:
+            if pos1((o,d)) != pos2((o,d)):
+                return False
+    return True
+
 def c_(n):
     if n%2 == 1:
         return sc.white
@@ -325,8 +361,25 @@ def dummy_pos2(sq):
         return (sc.black, "Q")
     return "empty"
 
+def dummy_pos3(sq):
+    if sq == (1,2):
+        return (sc.white, "P")
+    if sq == (4,2):
+        return (sc.white, "P")
+    return "empty"
+
 #for position in king_not_attacked(sc.white, dummy_pos, dummy_pos2):
 #    print_board(position)
 
-for pos in valid_moves(dummy_pos, dummy_pos2):
-    print_board(pos)
+#for pos in valid_moves(dummy_pos, dummy_pos2):
+    #print_board(pos)
+
+a = do_move(initial_position,((4,2),(4,4)))
+b = do_move(a,((7,8),(8,6)))
+c = do_move(b,((4,4),(4,5)))
+d = do_move(c,((5,7),(5,5)))
+print_board(d)
+
+print(valid_en_passant(d, c, sc.white))
+e = do_en_passant(d, ((4,5),(5,6)))
+print_board(e)
