@@ -78,7 +78,7 @@ def initial_position(sq):
 def print_board(pos):
     temp = ""
     for i in range (8,0,-1):
-        for j in range (8,0,-1):
+        for j in range (1,9):
             if pos((j,i)) == "empty":
                 temp += " --"
             else:
@@ -249,8 +249,36 @@ def squares_attacked(pos, col):
         for o in sc.squares:
             if pos(o)[0] == col and (o,d) in attacks(pos):
                 temp.add(d)
-                #print("added ",d)
+                print("added ",d)
     return temp
+
+
+def king_not_attacked(col, *games):
+    """color x (pos,...,pos) -> IP(pos)"""
+    temp = set()
+    for set_ in games:
+        for pos in set_:
+            king_attacked = False
+            for sq in squares_attacked(pos, -col):
+                if pos(sq) == (col, "K"):
+                    king_attacked = True
+                    break
+            if not king_attacked:
+                temp.add(pos)
+    return temp
+
+
+
+def valid_moves(*games):
+    """ (pos, ... ,pos) -> IP(pos) """
+    set1 = normal_moves(games[-1], c_(len(games)))
+    return king_not_attacked(c_(len(games)), set1)
+
+
+def c_(n):
+    if n%2 == 1:
+        return sc.white
+    return sc.black
 
 
 def implies(p,q):
@@ -279,4 +307,26 @@ def cart_prod(p,q):
     #print_board(el)
 #for el in normal_moves(do_move(initial_position,((4,2),(4,7))),sc.white):
     #print_board(el)
-print(squares_attacked(initial_position, sc.white))
+#print(squares_attacked(initial_position, sc.white))
+#for position in valid_moves(initial_position, do_move(initial_position,(((4,2),(4,4))))):
+    #print_board(position)
+
+def dummy_pos(sq):
+    if sq == (4,4):
+        return (sc.white, "K")
+    if sq == (4,3):
+        return (sc.black, "N")
+    return "empty"
+
+def dummy_pos2(sq):
+    if sq == (4,4):
+        return (sc.white, "K")
+    if sq == (1,1):
+        return (sc.black, "Q")
+    return "empty"
+
+#for position in king_not_attacked(sc.white, dummy_pos, dummy_pos2):
+#    print_board(position)
+
+for pos in valid_moves(dummy_pos, dummy_pos2):
+    print_board(pos)
