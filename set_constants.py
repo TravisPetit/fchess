@@ -57,5 +57,5 @@ def print_sets():
     print("colors:\n", colors)
     print("opposite_colors:\n", opposite_colors)
 
-#init_sets()
+init_sets()
 #print_sets()

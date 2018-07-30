@@ -1,5 +1,4 @@
 import set_constants as sc
-sc.init_sets()
 
 def pawn_advances_two_squares(col):
     """ colors -> IP(moves) """
@@ -110,7 +109,7 @@ def do_move(pos, move):
     return p
 
 
-def in_between(o, d):#TODO: improve, test, refactor
+def in_between(o, d):#TODO refactor
     """ InBetween(o,d) := {s in squares: exists lambda in (0,1) : s = lambda o + (1-lambda)d} """
     temp = set()
     o1, o2 = o[0], o[1]
@@ -249,7 +248,7 @@ def squares_attacked(pos, col):
         for o in sc.squares:
             if pos(o)[0] == col and (o,d) in attacks(pos):
                 temp.add(d)
-                print("added ",d)
+                #print("added ",d)
     return temp
 
 
@@ -272,7 +271,8 @@ def king_not_attacked(col, *games):
 def valid_moves(*games):
     """ (pos, ... ,pos) -> IP(pos) """
     set1 = normal_moves(games[-1], c_(len(games)))
-    return king_not_attacked(c_(len(games)), set1)
+    set2 = en_passant(games)
+    return king_not_attacked(c_(len(games)), set1.union(set2))
 
 
 def valid_en_passant(pos, old_pos, col):
@@ -302,7 +302,6 @@ def do_en_passant(pos, move):
     return temp
 
 
-
 def function_equality(pos1,pos2):
     """ helper function for valid_en_passant """
     for o in sc.squares:
@@ -310,6 +309,19 @@ def function_equality(pos1,pos2):
             if pos1((o,d)) != pos2((o,d)):
                 return False
     return True
+
+
+def en_passant(*games):
+    """(pos, ... ,pos) -> IP(position)"""
+    temp = set()
+    if len(games) == 1:
+        return temp
+    pos = games[-1]
+    prev_pos = games[-2]
+    col = -c_(len(games))#in the paper, the "-" is not here, but without it, the program just doesn't work
+    for (o,d) in valid_en_passant(pos,prev_pos,col):
+        temp.add(do_en_passant(pos, (o,d)))
+    return temp
 
 def c_(n):
     if n%2 == 1:
@@ -371,6 +383,8 @@ def dummy_pos3(sq):
 #for position in king_not_attacked(sc.white, dummy_pos, dummy_pos2):
 #    print_board(position)
 
+#print_board(dummy_pos)
+#print_board(dummy_pos3)
 #for pos in valid_moves(dummy_pos, dummy_pos2):
     #print_board(pos)
 
@@ -378,8 +392,11 @@ a = do_move(initial_position,((4,2),(4,4)))
 b = do_move(a,((7,8),(8,6)))
 c = do_move(b,((4,4),(4,5)))
 d = do_move(c,((5,7),(5,5)))
-print_board(d)
+#print_board(d)
 
-print(valid_en_passant(d, c, sc.white))
-e = do_en_passant(d, ((4,5),(5,6)))
-print_board(e)
+#for pos in en_passant(c,d):
+    #print_board(pos)
+#print(valid_en_passant(d, c, sc.white))
+#e = do_en_passant(d, ((4,5),(5,6)))
+#print_board(e)
+#print_board(valid_moves(a,b,c,d))
